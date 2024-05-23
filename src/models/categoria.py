@@ -7,9 +7,9 @@ from src.modules import db
 
 
 class Categoria(db.Model, BasicRepositoryMixin, TimeStampMixin):
-    __tablename__='categorias'
+    __tablename__ = 'categorias'
     id: Mapped[Uuid] = mapped_column(Uuid(as_uuid=True),
-                                      primary_key=True,
-                                      default=uuid.uuid4)
+                                     primary_key=True,
+                                     default=uuid.uuid4)
     nome: Mapped[str] = mapped_column(String(128),
                                       nullable=False)
