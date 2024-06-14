@@ -17,7 +17,7 @@ class Produto(db.Model, BasicRepositoryMixin, TimeStampMixin):
     estoque = mapped_column (Integer, default=0)
     ativo = mapped_column (Boolean, default=True, nullable=False)
     possui_foto = mapped_column (Boolean, default=True, nullable=False)
-    foto_base64 = mapped_column (Text, default=True, nullable=False)
+    foto_base64 = mapped_column (Text, default=True, nullable=True)
     foto_mime = mapped_column (String(64), default=None, nullable=True)
     categoria_id = mapped_column (Uuid(as_uuid=True), ForeignKey('categorias.id'))
 
