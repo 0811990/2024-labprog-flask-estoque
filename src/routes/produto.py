@@ -27,7 +27,10 @@ def add():
         produto = Produto(nome = form.nome.data,
                            preco = form.preco.data,
                            ativo = form.ativo.data,
-                           estoque = form.estoque.data)
+                           estoque = form.estoque.data,
+                           corredor = form.corredor.data,
+                           estante=form.estante.data,
+                           andar=form.andar.data)
 
         if form.foto.data:
             produto.possui_foto = True
@@ -53,12 +56,12 @@ def add():
                            title="Adicionar novo Produto")
 
 @bp.route('/edit/<uuid:produto_id>', methods=['GET', 'POST'])
+@login_required
 def edit(produto_id):
     produto = Produto.get_by_id(produto_id)
     if produto is None:
         flash("Produto inexistente", category='danger')
         return redirect(url_for('produto.lista'))
-
 
     form = ProdutoForm(obj=produto)
     form.submit.label.text = "Alterar produto"
@@ -69,6 +72,9 @@ def edit(produto_id):
         produto.preco = form.preco.data
         produto.estoque = form.estoque.data
         produto.ativo = form.ativo.data
+        produto.corredor = form.corredor.data
+        produto.estante = form.estante.data
+        produto.andar = form.andar.data
         categoria = Categoria.get_by_id(form.categoria.data)
         if form.removerfoto.data:
             produto.possui_foto = False
@@ -86,7 +92,6 @@ def edit(produto_id):
         db.session.commit()
         flash ("Produto alterado!", category='success')
         return redirect(url_for('produto.lista'))
-
 
     form.categoria.process_data(str(produto.categoria_id))
     return render_template('produto/edit.jinja2', form=form,
@@ -107,13 +112,12 @@ def delete(produto_id):
     flash("Produto removido!", category='success')
     return redirect(url_for('produto.lista'))
 
-
 @bp.route('/lista', methods=['GET', 'POST'])
 @bp.route('/', methods=['GET', 'POST'])
 def lista():
-    page  = request.args.get('page', type=int, default=1)
+    page = request.args.get('page', type=int, default=1)
     pp = request.args.get('pp', type=int, default=25)
-    q = request.args.get('q', type=str, default="")
+    q = request.args.get('q', type=str, default='')
 
     sentenca = db.select(Produto).order_by(Produto.nome)
 
@@ -123,9 +127,10 @@ def lista():
     try:
         rset = db.paginate(sentenca, page=page, per_page=pp, error_out=True)
     except NotFound:
-        flash(f"Não temos produtos na página {page}. Apresentando página 1")
-        page = 1
-        rset = db.paginate(sentenca, page=page, per_page=pp, error_out=False)
+         flash(f"Não temos produtos na página {page}. Apresentado página 1")
+         page = 1
+         rset = db.paginate(sentenca, page=page, per_page=pp, error_out=False)
+
 
     return render_template('produto/lista.jinja2',
                            title = 'Lista de Produtos',
@@ -140,7 +145,7 @@ def imagem(id_produto):
     if produto is None:
         return abort(404)
     conteudo, tipo = produto.imagem
-    return Response(conteudo, mimetype=tipo)
+    return Response(conteudo, tipo)
 
 
 @bp.route('/thumbnail/<uuid:id_produto>/<int:size>', methods=['GET'])
